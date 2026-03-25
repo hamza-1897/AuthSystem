@@ -17,11 +17,12 @@ const config = require('../config/config');
      }
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const user = await User.create({
+        const user =  new User({
             username,
             email,
             password: hashedPassword
-        });   
+        });
+        await user.save();
 
 
       
