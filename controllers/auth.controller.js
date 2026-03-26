@@ -38,7 +38,7 @@ const refreshToken = jwt.sign({
 res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: false, // Set to true in production with HTTPS
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 7 * 24 * 60 * 60 * 1000
 });
 
@@ -83,7 +83,7 @@ const getMe = async (req, res) => {
 const refreshToken = async (req, res) => {
 
     const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken);
+    
 
     if(!refreshToken) {
         return res.status(401).json({ message: 'refresh token not provided' });
