@@ -49,6 +49,29 @@ res.status(201).json({
 
 };
 
+
+const getMe = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if(!token) {
+        return res.status(401).json({ message: 'token not provided' });
+    }
+
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+     
+    const user = await User.findById(decoded.id)
+    
+    res.status(200).json({
+        message : "user fetched successfully",
+        user: {
+            username: user.username,
+            email: user.email
+        }
+    });
+
+};
+
 module.exports = {
-    registerUser
+    registerUser,
+    getMe
 }
