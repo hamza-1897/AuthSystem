@@ -26,12 +26,21 @@ const config = require('../config/config');
 
 
       
-const token  = jwt.sign({
+const accessToken  = jwt.sign({ id: user._id},config.JWT_SECRET,{expiresIn: '15m'});
+
+const refreshToken = jwt.sign({
     id: user._id},
     config.JWT_SECRET,{
-    expiresIn: '1d'
+    expiresIn: '7d'
     }
 );
+
+res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: false, // Set to true in production with HTTPS
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
 res.status(201).json({
     message: 'User registered successfully',
@@ -40,7 +49,7 @@ res.status(201).json({
         username: user.username,
         email: user.email
     },
-    token: token
+    accessToken,
 });
        
 
@@ -71,7 +80,27 @@ const getMe = async (req, res) => {
 
 };
 
+const refreshToken = async (req, res) => {
+
+    const refreshToken = req.cookies.refreshToken;
+    console.log(refreshToken);
+
+    if(!refreshToken) {
+        return res.status(401).json({ message: 'refresh token not provided' });
+    }
+
+    const decoded = jwt.verify(refreshToken, config.JWT_SECRET);
+
+    const accessToken  = jwt.sign({ id: decoded.id},config.JWT_SECRET,{expiresIn: '15m'});
+
+    res.status(200).json({
+        message: 'Access token refreshed successfully',
+        accessToken
+    });
+}
+
 module.exports = {
     registerUser,
-    getMe
+    getMe,
+    refreshToken
 }
